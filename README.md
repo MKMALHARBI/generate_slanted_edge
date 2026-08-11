@@ -1,9 +1,31 @@
 # Synthetic Slanted-Edge Image Generator
 
+Generate a ground-truth slanted-edge test image for **MTF** / **SFR** measurement in
+radiographic and other digital imaging systems — the edge target used by the
+**ISO 12233** slanted-edge method.
+
 ## Description
 This script generates a **synthetic slanted-edge image** for **MTF (Modulation Transfer Function) validation** in radiographic imaging systems.
 
 The slanted edge is analytically defined on an **oversampled grid** and then binned to detector resolution, providing accurate pixel-aperture integration while avoiding large memory allocations. The output is a **32-bit floating-point TIFF** and **16-bit floating-point TIFF** suitable for standard slanted-edge MTF analysis pipelines.
+
+---
+
+## Background
+
+The slanted-edge method estimates a system's spatial resolution from an image of a
+sharp edge tilted a few degrees off the pixel grid. The tilt lets pixels across many
+rows sample the edge at different sub-pixel phases, so a finely sampled **edge spread
+function (ESF)** can be reconstructed from a coarsely sampled image. Differentiating
+the ESF gives the **line spread function (LSF)**, and its Fourier transform gives the
+**spatial frequency response (SFR)** — the MTF.
+
+Because the edge here is defined analytically rather than photographed, the resulting
+MTF is known in advance: with `BLUR_SIGMA_MM = 0.0` the only degradation is the
+detector's own pixel aperture, whose MTF is `sinc(f · pixel_pitch)`. That makes the
+image a ground truth against which an analysis pipeline can be checked — if your code
+does not recover the expected curve from this image, the error is in the code and not
+in the data.
 
 ---
 
@@ -65,6 +87,9 @@ BLUR_SIGMA_MM = 0.0         # Optional Gaussian blur (mm)
 Notes:
 - Increasing `OVERSAMPLE` improves pixel-aperture accuracy at the cost of computation time.
 - Setting `BLUR_SIGMA_MM = 0.0` produces a ground-truth edge limited only by pixel integration.
+- `EDGE_ANGLE_DEG` should stay a few degrees off both the pixel grid and 45°; ISO 12233
+  uses roughly 5°. An exactly axis-aligned edge gives no sub-pixel phase diversity and
+  the method degenerates.
 
 ---
 
@@ -82,6 +107,13 @@ Notes:
 - Reference image generation
 - Algorithm benchmarking
 - Simulation and analysis consistency checks
+
+---
+
+## See also
+Related terms for anyone arriving here from a search: modulation transfer function,
+spatial frequency response, edge spread function, line spread function, slant edge
+target, detector characterisation, digital radiography image quality, ISO 12233.
 
 ---
 
